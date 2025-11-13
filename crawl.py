@@ -1,3 +1,6 @@
+print(f"[INFO] sources={len(sources)} items_to_push={len(to_push)}")
+if to_push:
+    print("[SAMPLE]", to_push[0].get("title"), to_push[0].get("url"))
 import os, time, sqlite3, hashlib, random, requests, yaml
 from datetime import datetime
 from importlib import import_module
