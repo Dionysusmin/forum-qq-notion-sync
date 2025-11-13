@@ -126,5 +126,8 @@ def main():
 
         time.sleep(random.uniform(1, 2))
 
- print(f"\n[INFO] Loaded sources: {len(sources)}")
+print(f"\n[INFO] Loaded sources: {len(sources)}")
+for s in sources:
+    print("[INFO] source:", s)
+
 
