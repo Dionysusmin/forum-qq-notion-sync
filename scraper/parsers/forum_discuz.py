@@ -2,30 +2,44 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from urllib.parse import urljoin
 
-BASE = "https://chunman4.com/"
+BASE = "<https://chunman4.com/>"
 
+CANDIDATE_SELECTORS = [
+    "a.xst",
+    "a.s.xst",
+    ".threadlist a[href*='thread-']",
+    "a[href*='thread-']",
+]
 
 def parse(html: str) -> list[dict]:
     soup = BeautifulSoup(html, "lxml")
+    links = []
+    for sel in CANDIDATE_SELECTORS:
+        links = soup.select(sel)
+        if links:
+            break
     items = []
-    # Discuz 列表页帖子标题一般使用 a.xst
-    for a in soup.select("a.xst"):
+    for a in links:
+        href = a.get("href") or ""
         title = a.get_text(strip=True)
-        link = urljoin(BASE, a.get("href"))
-        # 作者通常位于同一行的 .by 或 cite 元素内
-        row = a.find_parent("tr") or a
+        if not href or not title:
+            continue
+        link = urljoin(BASE, href)
+        row = a.find_parent("tr") or a.find_parent("li") or a
         author = ""
-        cand = None
-        if row:
-            cand = row.select_one(".by cite, cite, .xi2")
-        if cand:
-            author = cand.get_text(strip=True)
+        digest = ""
+        cand_auth = row.select_one(".by cite, cite, .xi2, .author") if row else None
+        if cand_auth:
+            author = cand_auth.get_text(strip=True)
+        cand_dig = row.select_one(".abstract, .summary, .excerpt")
+        if cand_dig:
+            digest = cand_dig.get_text(strip=True)[:200]
         items.append({
             "title": title,
             "url": link,
             "author": author,
             "published_at": datetime.utcnow().isoformat(),
-            "digest": "",
+            "digest": digest,
             "platform": "论坛",
         })
     return items
