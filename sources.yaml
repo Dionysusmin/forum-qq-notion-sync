@@ -1,7 +1,0 @@
-- name: forum_chunman
-  platform: 论坛
-  url: https://chunman4.com/
-  parser: forum_discuz
-  interval_minutes: 30
-  login_required: true
-  extract_qq: true  # 启用 QQ 号码提取
